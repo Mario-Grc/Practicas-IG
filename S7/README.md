@@ -1,5 +1,5 @@
 # Semana 7 - Sistema Solar
-Simulación 3D interactiva de un sistema solar básico, creada con **three.js**. Este proyecto se realizó en [CodeSandbox](https://codesandbox.io/p/sandbox/ig2526-s6-forked-jm3klw).
+Simulación 3D interactiva de un sistema solar básico, creada con **three.js**. Este proyecto se realizó en [CodeSandbox](https://codesandbox.io/p/sandbox/ig2526-s7-entrega-jm3klw).
 
 ## Descripción
 Este proyecto renderiza una escena 3D que representa una estrella central (Sol) y varios planetas orbitando a su alrededor (incluyendo Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano y Neptuno). También incluye una luna orbitando la Tierra.
