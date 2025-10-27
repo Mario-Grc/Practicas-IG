@@ -11,10 +11,22 @@ let estrella,
 let t0 = 0;
 let accglobal = 0.001;
 let timestamp;
+let planetaSeleccionado = 2; // por defecto se selecciona la tierra
 let vistaActual = "orbital"; // "orbital" o "nave"
 let cameraOffset = { distance: 5, height: 3, angle: 0 }; // Para modo nave
 let isDragging = false;
 let previousMousePosition = { x: 0, y: 0 };
+
+const nombresPlanetas = [
+  "Mercurio",
+  "Venus",
+  "Tierra",
+  "Marte",
+  "Júpiter",
+  "Saturno",
+  "Urano",
+  "Neptuno",
+];
 
 init();
 animationLoop();
@@ -31,13 +43,23 @@ function init() {
   info.style.zIndex = "1";
   info.style.fontFamily = "Monospace";
   info.innerHTML =
-    "Sistema Solar de Mario García Abellán (2025-2026)<br>[Espacio] Cambiar vista | [Click izquierdo + mover] Mover cámara";
+    "Sistema Solar de Mario García Abellán (2025-2026)<br>" +
+    "[1-8] Seleccionar planeta | [0] Vista orbital<br>" +
+    `Vista actual: ${
+      vistaActual === "nave" ? nombresPlanetas[planetaSeleccionado] : "Orbital"
+    }`;
   document.body.appendChild(info);
 
   // Control para cambiar vista
   document.addEventListener("keydown", (event) => {
-    if (event.code === "Space") {
-      vistaActual = vistaActual === "orbital" ? "nave" : "orbital";
+    const key = event.key;
+
+    if (key >= "1" && key <= String(Planetas.length)) {
+      planetaSeleccionado = parseInt(key) - 1; // índice del planeta (0 = Mercurio)
+      vistaActual = "nave";
+    } else if (key === "0") {
+      // volver a vista normal o mirar el Sol
+      vistaActual = "orbital";
     }
   });
 
@@ -232,6 +254,13 @@ function Luna(planeta, radio, dist, vel, col, angle, texture) {
 function animationLoop() {
   timestamp = (Date.now() - t0) * accglobal;
 
+  info.innerHTML =
+    "Sistema Solar de Mario García Abellán (2025-2026)<br>" +
+    "[1-8] Seleccionar planeta | [0] Vista orbital<br>" +
+    `Vista actual: ${
+      vistaActual === "nave" ? nombresPlanetas[planetaSeleccionado] : "Orbital"
+    }`;
+
   requestAnimationFrame(animationLoop);
 
   //Modifica rotación de todos los objetos
@@ -257,21 +286,18 @@ function animationLoop() {
 
   // Actualizar cámara según la vista
   if (vistaActual === "nave") {
-    // Vista desde la nave siguiendo la Tierra (Planetas[2])
-    let tierra = Planetas[2];
+    let planeta = Planetas[planetaSeleccionado];
+    if (planeta) {
+      let angle = Math.atan2(planeta.position.z, planeta.position.x);
+      let totalAngle = angle + cameraOffset.angle;
 
-    // Calcular posición de la Tierra
-    let angletierra = Math.atan2(tierra.position.z, tierra.position.x);
-
-    // Aplicar el offset controlable por el usuario
-    let totalAngle = angletierra + cameraOffset.angle;
-
-    camera.position.set(
-      tierra.position.x + cameraOffset.distance * Math.cos(totalAngle),
-      tierra.position.y + cameraOffset.height,
-      tierra.position.z + cameraOffset.distance * Math.sin(totalAngle)
-    );
-    camera.lookAt(tierra.position);
+      camera.position.set(
+        planeta.position.x + cameraOffset.distance * Math.cos(totalAngle),
+        planeta.position.y + cameraOffset.height,
+        planeta.position.z + cameraOffset.distance * Math.sin(totalAngle)
+      );
+      camera.lookAt(planeta.position);
+    }
   } else {
     // Vista orbital, la cámara se mantiene con OrbitControls
     // No hace falta actualizar nada
