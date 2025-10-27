@@ -11,7 +11,7 @@ let estrella,
 let t0 = 0;
 let accglobal = 0.001;
 let timestamp;
-let planetaSeleccionado = 2; // por defecto se selecciona la tierra
+let planetaSeleccionado = 3; // por defecto se selecciona la tierra
 let vistaActual = "orbital"; // "orbital" o "nave"
 let cameraOffset = { distance: 5, height: 3, angle: 0 }; // Para modo nave
 let isDragging = false;
@@ -128,7 +128,6 @@ function init() {
   const moon = new THREE.TextureLoader().load("src/textures/moon_1024.jpg");
 
   // iluminacion
-  // la luz del sol
   const sunLight = new THREE.PointLight(0xffffff, 2, 0);
   sunLight.position.set(0, 0, 0);
   scene.add(sunLight);
@@ -180,12 +179,17 @@ function init() {
   Planeta(1.2, 65.0, 0.012, 0x4fd0e7, 1.0, 0.98, uranus); // Urano
   Planeta(1.15, 78.0, 0.006, 0x4166f5, 1.0, 0.99, neptune); // Neptuno
 
-  // Luna(Planetas[0], 0.15, 0.75, -3.5, 0xffff00, 0.0);
   Luna(Planetas[2], 0.24, 2.5, 1.5, 0xbbbbbb, Math.PI / 2, moon);
+
+  // para ajustar cuando se cambie el tamaño de la ventana
+  window.addEventListener("resize", () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+  });
 
   //Inicio tiempo
   t0 = Date.now();
-  //EsferaChild(objetos[0],3.0,0,0,0.8,10,10, 0x00ff00);
 }
 
 function Estrella(rad, col) {
@@ -300,7 +304,6 @@ function animationLoop() {
     }
   } else {
     // Vista orbital, la cámara se mantiene con OrbitControls
-    // No hace falta actualizar nada
   }
 
   renderer.render(scene, camera);

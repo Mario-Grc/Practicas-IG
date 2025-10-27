@@ -21,3 +21,10 @@ En la parte superior de la simulación hay un panel que indica los controles bá
 
 - Click izquierdo + Arrastrar: Rotar cámara
 - Rueda del ratón: Acercar o alejar cámara.
+
+## Referencias
+- [Texturas](https://planetpixelemporium.com/earth.html)
+- [Documentación three.js](https://threejs.org/manual/#en/creating-a-scene)
+- Uso de IA:
+    - Para elegir el tamaño, órbita y color de los planetas.
+    - Ayuda para crear las estrellas de fondo.
