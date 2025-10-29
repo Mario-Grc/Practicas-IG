@@ -120,6 +120,9 @@ function init() {
 
   // cargo las texturas
   const earth = new THREE.TextureLoader().load("src/textures/earthmap1k.jpg");
+  const earthbump = new THREE.TextureLoader().load(
+    "src/textures/earthbump1k.jpg"
+  );
   const mercury = new THREE.TextureLoader().load("src/textures/mercurymap.jpg");
   const venus = new THREE.TextureLoader().load("src/textures/venusmap.jpg");
   const mars = new THREE.TextureLoader().load("src/textures/mars_1k_color.jpg");
@@ -174,7 +177,7 @@ function init() {
   Estrella(3.5, 0xffee88);
   Planeta(0.35, 8.0, 4.15, 0x888888, 1.0, 0.98, mercury); // Mercurio
   Planeta(0.85, 12.0, 1.62, 0xffe4b5, 1.0, 0.99, venus); // Venus
-  Planeta(0.9, 16.0, 1.0, 0xffffff, 1.0, 0.98, earth); // Tierra
+  Planeta(0.9, 16.0, 1.0, 0xffffff, 1.0, 0.98, earth, earthbump); // Tierra
   Planeta(0.48, 22.0, 0.53, 0xaa3300, 1.0, 0.96, mars); // Marte
   Planeta(2.5, 36.0, 0.084, 0xc88b3a, 1.0, 0.95, jupiter); // Júpiter
   Planeta(2.1, 50.0, 0.034, 0xfad5a5, 1.0, 0.94, saturn); // Saturno
@@ -211,12 +214,17 @@ function Estrella(rad, col) {
   scene.add(estrella);
 }
 
-function Planeta(radio, dist, vel, col, f1, f2, texture) {
+function Planeta(radio, dist, vel, col, f1, f2, texture, texbump) {
   let geom = new THREE.SphereGeometry(radio, 10, 10);
   let mat = new THREE.MeshStandardMaterial({ color: col });
 
   if (texture != undefined) {
     mat.map = texture;
+  }
+
+  if (texbump != undefined) {
+    mat.bumpMap = texbump;
+    mat.bumpScale = 0.02;
   }
 
   let planeta = new THREE.Mesh(geom, mat);
