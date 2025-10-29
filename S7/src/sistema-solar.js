@@ -11,7 +11,7 @@ let estrella,
 let t0 = 0;
 let accglobal = 0.001;
 let timestamp;
-let planetaSeleccionado = 3; // por defecto se selecciona la tierra
+let planetaSeleccionado = 2; // por defecto se selecciona la tierra
 let vistaActual = "orbital"; // "orbital" o "nave"
 let cameraOffset = { distance: 5, height: 3, angle: 0 }; // Para modo nave
 let isDragging = false;
@@ -57,9 +57,11 @@ function init() {
     if (key >= "1" && key <= String(Planetas.length)) {
       planetaSeleccionado = parseInt(key) - 1; // índice del planeta (0 = Mercurio)
       vistaActual = "nave";
+      actualizarInfoVista();
     } else if (key === "0") {
       // volver a vista normal o mirar el Sol
       vistaActual = "orbital";
+      actualizarInfoVista();
     }
   });
 
@@ -92,7 +94,7 @@ function init() {
       const deltaX = e.clientX - previousMousePosition.x;
       const deltaY = e.clientY - previousMousePosition.y;
 
-      cameraOffset.angle -= deltaX * 0.01;
+      cameraOffset.angle += deltaX * 0.01;
       cameraOffset.height = Math.max(
         0,
         Math.min(10, cameraOffset.height + deltaY * 0.05)
@@ -169,7 +171,7 @@ function init() {
   scene.add(campoEstrellas);
 
   //Objetos
-  Estrella(3, 0xffee88);
+  Estrella(3.5, 0xffee88);
   Planeta(0.35, 8.0, 4.15, 0x888888, 1.0, 0.98, mercury); // Mercurio
   Planeta(0.85, 12.0, 1.62, 0xffe4b5, 1.0, 0.99, venus); // Venus
   Planeta(0.9, 16.0, 1.0, 0xffffff, 1.0, 0.98, earth); // Tierra
@@ -190,6 +192,16 @@ function init() {
 
   //Inicio tiempo
   t0 = Date.now();
+}
+
+// Función para actualizar el texto de información
+function actualizarInfoVista() {
+  info.innerHTML =
+    "Sistema Solar de Mario García Abellán (2025-2026)<br>" +
+    "[1-8] Seleccionar planeta | [0] Vista orbital<br>" +
+    `Vista actual: ${
+      vistaActual === "nave" ? nombresPlanetas[planetaSeleccionado] : "Orbital"
+    }`;
 }
 
 function Estrella(rad, col) {
@@ -257,13 +269,6 @@ function Luna(planeta, radio, dist, vel, col, angle, texture) {
 //Bucle de animación
 function animationLoop() {
   timestamp = (Date.now() - t0) * accglobal;
-
-  info.innerHTML =
-    "Sistema Solar de Mario García Abellán (2025-2026)<br>" +
-    "[1-8] Seleccionar planeta | [0] Vista orbital<br>" +
-    `Vista actual: ${
-      vistaActual === "nave" ? nombresPlanetas[planetaSeleccionado] : "Orbital"
-    }`;
 
   requestAnimationFrame(animationLoop);
 
