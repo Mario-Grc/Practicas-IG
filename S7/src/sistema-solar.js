@@ -43,7 +43,7 @@ function init() {
   info.style.zIndex = "1";
   info.style.fontFamily = "Monospace";
   info.innerHTML =
-    "Sistema Solar de Mario García Abellán (2025-2026)<br>" +
+    "Sistema solar de Mario García Abellán (2025-2026)<br>" +
     "[1-8] Seleccionar planeta | [0] Vista orbital<br>" +
     `Vista actual: ${
       vistaActual === "nave" ? nombresPlanetas[planetaSeleccionado] : "Orbital"
@@ -200,7 +200,7 @@ function init() {
 // Función para actualizar el texto de información
 function actualizarInfoVista() {
   info.innerHTML =
-    "Sistema Solar de Mario García Abellán (2025-2026)<br>" +
+    "Sistema solar de Mario García Abellán (2025-2026)<br>" +
     "[1-8] Seleccionar planeta | [0] Vista orbital<br>" +
     `Vista actual: ${
       vistaActual === "nave" ? nombresPlanetas[planetaSeleccionado] : "Orbital"
