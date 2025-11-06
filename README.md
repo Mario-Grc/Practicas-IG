@@ -3,6 +3,7 @@ Este repositorio se ha creado para guardar las prácticas realizadas para la asi
 
 ## Contenidos
 - [Semana 7 - Sistema solar](S7/README.md)
+- [Semana 8 - Terrenos y mapas geográficos](S8/README.md)
 
 ## Autor
 Mario García Abellán
