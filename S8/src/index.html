@@ -1,20 +1,51 @@
 <html>
-    <head>
-        <title>Práctica S8 IG - Mario García Abellán</title>
-        <meta charset="UTF-8" />
-        <style>
-            html,
-            body {
-                margin: 0;
-                padding: 0;
-            }
-        </style>
-    </head>
+  <head>
+    <title>Práctica S8 IG</title>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-    <body>
-        <div id="app"></div>
+  <body>
+    <div id="app"></div>
 
-        <!--S8-->
-        <script src="script_24_mapasitycleta.js" type="module"></script>
-    </body>
+    <div id="leyenda">
+      <strong>Leyenda</strong> (Datos de 2022)<br /><br />
+      <strong>Tamaño de la esfera:</strong><br />
+      • Proporcional a la población (pequeña → poca población, grande → mucha
+      población)<br /><br />
+
+      <strong>Color:</strong><br />
+      Azul → edad media baja<br />
+      Rojo → edad media alta<br />
+      <div class="gradiente"></div>
+    </div>
+
+    <div id="filtroPoblacion">
+      <strong>Filtrar por población</strong><br /><br />
+
+      <label>Mínima: </label>
+      <input type="number" id="poblacionMin" value="0" style="width: 80px" />
+      <br /><br />
+
+      <label>Máxima: </label>
+      <input
+        type="number"
+        id="poblacionMax"
+        value="500000"
+        style="width: 80px"
+      />
+      <br /><br />
+
+      <button id="btnAplicarFiltro">Aplicar filtro</button>
+      <div style="display: flex; column-gap: 5px">
+        <button id="btnReiniciarFiltro" class="btnReset">
+          Reiniciar filtro</button
+        ><button id="btnReiniciarMapa" class="btnReset">Reiniciar mapa</button>
+      </div>
+    </div>
+
+    <div id="infoMunicipio"></div>
+    <!--S8-->
+    <script src="script_mapa.js" type="module"></script>
+  </body>
 </html>

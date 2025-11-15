@@ -1,0 +1,67 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#leyenda {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  font-family: sans-serif;
+  font-size: 14px;
+  width: 260px;
+  z-index: 10;
+}
+
+#infoMunicipio {
+  position: absolute;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  display: none;
+  border-radius: 8px;
+  font-family: sans-serif;
+  font-size: 13px;
+  min-width: 200px;
+  z-index: 10;
+}
+
+.gradiente {
+  width: 100%;
+  height: 18px;
+  background: linear-gradient(to right, blue, red);
+  border-radius: 3px;
+  margin-top: 4px;
+}
+
+#filtroPoblacion {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  font-family: sans-serif;
+  font-size: 14px;
+  width: 180px;
+  z-index: 10;
+}
+
+#filtroPoblacion button {
+  margin-top: 6px;
+  padding: 6px 10px;
+  width: 100%;
+  border: none;
+  background: #2d6cdf;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#filtroPoblacion button:hover {
+  background: #1f4cad;
+}
