@@ -1,6 +1,8 @@
 # Semana 8 - Terrenos y mapas geográficos
 Proyecto interactivo en three.js que muestra un mapa de Canarias con información demográfica por municipio mediante esferas en 3D. Cada esfera representa un municipio y su tamaño, color y posición codifican diferentes variables poblacionales. Enlace del [CodeSandbox](https://codesandbox.io/p/sandbox/ig2526-s8-forked-t8l3jw).
 
+Video demostración: [Mapa-demo-Mario.mp4](Mapa-demo-Mario.mp4)
+
 ## Descripción
 La aplicación carga un mapa de Canarias en 3D sobre el que se colocan esferas que representan cada municipio, utilizando un sistema de coordenadas basado en latitud y longitud reales.
 
