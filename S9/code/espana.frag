@@ -30,9 +30,14 @@ void main() {
     }
 
     // Sombreado basado en la deformación
-    float shade = wave * 8.0;	// escala del efecto
+    float shade = wave * 8.0;
 
     color *= 1.0 - shade;
+
+    // luz
+    float spot = 1.0 - length(st - vec2(0.3, 0.5));
+    spot = max(spot, 0.0);
+    color *= 0.7 + spot * 0.3;
 
     gl_FragColor = vec4(color, 1.0);
 }
