@@ -51,7 +51,7 @@ El resultado final está en el archivo [espana.frag](code/espana.frag), un shade
 
 <img alt="Shader de la bandera de España" src="shader-espana.gif">
 
-*(En este gif los colores y las sombras se ven con menos calidad, recomiendo ejecutarlo en thebookofshaders)*
+*(IMPORTANTE: En este gif los colores y las sombras se ven con menos calidad, recomiendo ejecutarlo en thebookofshaders)*
 
 ## Versión Tiny Code
 También está disponible el shader en [versión tiny code](code/espna-tiny.frag), que reduce en gran medida el tamaño del shader manteniendo la funcionalidad completa.
