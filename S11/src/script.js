@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import Ammo from "ammojs-typed";
-import TWEEN from "@tweenjs/tween.js"; // ⭐ Instalar: npm install @tweenjs/tween.js
+import TWEEN from "@tweenjs/tween.js";
 
 // Variables globales
 let camera, scene, renderer, controls;
@@ -9,7 +9,7 @@ let physicsWorld;
 let clock;
 let ball = null;
 let pins = [];
-let bonusTargets = []; // ⭐ Objetivos bonus
+let bonusTargets = [];
 let pinsKnockedDown = 0;
 
 // Variables para el lanzamiento con ratón
@@ -37,6 +37,38 @@ function start() {
   initInput();
   animate();
 }
+
+// Crear el título con mi nombre
+const title = document.createElement("div");
+title.id = "game-title";
+title.innerText = "Mario García Abellán - S11";
+title.style.position = "fixed";
+title.style.top = "10px";
+title.style.left = "50%";
+title.style.transform = "translateX(-50%)";
+title.style.fontSize = "16px";
+title.style.fontFamily = "Arial, sans-serif";
+title.style.color = "#ffffff";
+title.style.textShadow = "0px 0px 10px black";
+title.style.zIndex = "10";
+document.body.appendChild(title);
+
+// Texto de STRIKE oculto
+const strikeText = document.createElement("div");
+strikeText.id = "strike-text";
+strikeText.innerText = "¡STRIKE!";
+strikeText.style.position = "fixed";
+strikeText.style.top = "40%";
+strikeText.style.left = "50%";
+strikeText.style.transform = "translate(-50%, -50%) scale(0)";
+strikeText.style.fontSize = "90px";
+strikeText.style.fontFamily = "Impact, Arial Black, sans-serif";
+strikeText.style.color = "#FFD700";
+strikeText.style.textShadow = "0 0 20px black";
+strikeText.style.transition = "transform 0.6s ease-out, opacity 1s";
+strikeText.style.opacity = "0";
+strikeText.style.zIndex = "20";
+document.body.appendChild(strikeText);
 
 function initGraphics() {
   scene = new THREE.Scene();
@@ -372,6 +404,17 @@ function animateBonusHit(target) {
 // Celebración de strike
 function celebrateStrike() {
   console.log("¡¡¡STRIKE!!!");
+
+  // Mostrar STRIKE en pantalla
+  const strikeText = document.getElementById("strike-text");
+  strikeText.style.transform = "translate(-50%, -50%) scale(1)";
+  strikeText.style.opacity = "1";
+
+  // Ocultarlo después de 2 segundos
+  setTimeout(() => {
+    strikeText.style.transform = "translate(-50%, -50%) scale(0)";
+    strikeText.style.opacity = "0";
+  }, 2000);
 
   // Shake de cámara
   const originalPos = {
