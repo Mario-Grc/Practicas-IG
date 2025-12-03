@@ -41,7 +41,7 @@ function start() {
 // Crear el título con mi nombre
 const title = document.createElement("div");
 title.id = "game-title";
-title.innerText = "Mario García Abellán - S11";
+title.innerText = "Mario García Abellán";
 title.style.position = "fixed";
 title.style.top = "10px";
 title.style.left = "50%";
@@ -463,6 +463,77 @@ function createBall() {
   console.log(" Bola creada");
 }
 
+function resetGame() {
+  console.log("Reiniciando el juego...");
+
+  // Eliminar todas las bolas lanzadas del mundo físico y escena
+  for (let i = rigidBodies.length - 1; i >= 0; i--) {
+    const objThree = rigidBodies[i];
+    const objPhys = objThree.userData.physicsBody;
+
+    physicsWorld.removeRigidBody(objPhys);
+
+    if (objThree.geometry) objThree.geometry.dispose();
+    if (objThree.material) objThree.material.dispose();
+
+    scene.remove(objThree);
+  }
+
+  // Limpiar array de rigid bodies
+  rigidBodies.length = 0;
+
+  // Eliminar bolos
+  pins.forEach((pin) => {
+    if (pin.userData.physicsBody) {
+      physicsWorld.removeRigidBody(pin.userData.physicsBody);
+    }
+    if (pin.geometry) pin.geometry.dispose();
+    if (pin.material) pin.material.dispose();
+    scene.remove(pin);
+  });
+  pins.length = 0;
+
+  // eliminar objetos bonus
+  bonusTargets.forEach((target) => {
+    if (target.userData.physicsBody) {
+      physicsWorld.removeRigidBody(target.userData.physicsBody);
+    }
+    if (target.geometry) target.geometry.dispose();
+    if (target.material) target.material.dispose();
+    scene.remove(target);
+  });
+  bonusTargets.length = 0;
+
+  // Eliminar la bola inicial
+  if (ball) {
+    if (ball.userData.physicsBody) {
+      physicsWorld.removeRigidBody(ball.userData.physicsBody);
+    }
+    if (ball.geometry) ball.geometry.dispose();
+    if (ball.material) ball.material.dispose();
+    scene.remove(ball);
+    ball = null;
+  }
+
+  // Resetear contador de bolos derribados
+  pinsKnockedDown = 0;
+
+  scene.background.setHex(0x87ceeb);
+
+  // Resetear posición de cámara
+  camera.position.set(0, 8, 15);
+  camera.lookAt(0, 0, -5);
+  controls.target.set(0, 0, -5);
+  controls.update();
+
+  // Recrear todos los objetos
+  createPins();
+  createBonusTargets();
+  createBall();
+
+  console.log("¡Juego reiniciado!");
+}
+
 function initInput() {
   window.addEventListener("pointerdown", function (event) {
     if (event.button !== 0) return;
@@ -497,7 +568,12 @@ function initInput() {
 
     createRigidBody(newBall, ballShape, ballMass, pos, quat, velocity);
 
-    console.log("Bola lanzada!");
+    // NUEVO: Event listener para tecla R
+    window.addEventListener("keydown", function (event) {
+      if (event.key === "r" || event.key === "R") {
+        resetGame();
+      }
+    });
   });
 
   console.log("Controles de ratón inicializados");
