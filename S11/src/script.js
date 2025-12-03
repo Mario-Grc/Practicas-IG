@@ -12,16 +12,21 @@ let pins = [];
 let bonusTargets = [];
 let pinsKnockedDown = 0;
 
-// Variables para el lanzamiento con ratón
-const mouseCoords = new THREE.Vector2();
-const raycaster = new THREE.Raycaster();
-
 // Variables para física
 const rigidBodies = [];
 let transformAux1;
 const pos = new THREE.Vector3();
 const quat = new THREE.Quaternion();
 const margin = 0.05;
+
+// Variables para el sistema de lanzamiento
+let ballLaunched = false;
+let chargingPower = false;
+let currentPower = 0;
+const minPower = 10;
+const maxPower = 50;
+const chargeSpeed = 30; // Unidades de potencia por segundo
+let ballSpawnPosition = new THREE.Vector3(0, 0.5, 8);
 
 // Constantes
 const gravityConstant = 9.8;
@@ -70,6 +75,46 @@ strikeText.style.opacity = "0";
 strikeText.style.zIndex = "20";
 document.body.appendChild(strikeText);
 
+// Barra de potencia
+const powerBarContainer = document.createElement("div");
+powerBarContainer.id = "power-bar-container";
+powerBarContainer.style.position = "fixed";
+powerBarContainer.style.bottom = "50px";
+powerBarContainer.style.left = "50%";
+powerBarContainer.style.transform = "translateX(-50%)";
+powerBarContainer.style.width = "300px";
+powerBarContainer.style.height = "30px";
+powerBarContainer.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+powerBarContainer.style.border = "2px solid white";
+powerBarContainer.style.borderRadius = "5px";
+powerBarContainer.style.display = "none";
+powerBarContainer.style.zIndex = "10";
+document.body.appendChild(powerBarContainer);
+
+const powerBarFill = document.createElement("div");
+powerBarFill.id = "power-bar-fill";
+powerBarFill.style.width = "0%";
+powerBarFill.style.height = "100%";
+powerBarFill.style.backgroundColor = "#00ff00";
+powerBarFill.style.borderRadius = "3px";
+powerBarFill.style.transition = "background-color 0.1s";
+powerBarContainer.appendChild(powerBarFill);
+
+const powerBarText = document.createElement("div");
+powerBarText.id = "power-bar-text";
+powerBarText.innerText = "Mantén ESPACIO para cargar potencia";
+powerBarText.style.position = "fixed";
+powerBarText.style.bottom = "90px";
+powerBarText.style.left = "50%";
+powerBarText.style.transform = "translateX(-50%)";
+powerBarText.style.fontSize = "14px";
+powerBarText.style.fontFamily = "Arial, sans-serif";
+powerBarText.style.color = "#ffffff";
+powerBarText.style.textShadow = "0px 0px 5px black";
+powerBarText.style.display = "none";
+powerBarText.style.zIndex = "10";
+document.body.appendChild(powerBarText);
+
 function initGraphics() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x87ceeb);
@@ -80,8 +125,8 @@ function initGraphics() {
     0.1,
     1000
   );
-  camera.position.set(0, 8, 15);
-  camera.lookAt(0, 0, -5);
+  camera.position.set(0, 10, 12);
+  camera.lookAt(ballSpawnPosition);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -89,8 +134,11 @@ function initGraphics() {
   document.body.appendChild(renderer.domElement);
 
   controls = new OrbitControls(camera, renderer.domElement);
-  // controls.enableDamping = true;
-  controls.target.set(0, 0, -5);
+
+  controls.target.copy(ballSpawnPosition);
+  controls.enablePan = false;
+  controls.enableDamping = true;
+
   controls.update();
 
   clock = new THREE.Clock();
@@ -164,7 +212,7 @@ function createSphereWithPhysics(radius, mass, pos, material) {
   return mesh;
 }
 
-function createRigidBody(object, physicsShape, mass, pos, quat, vel, angVel) {
+function createRigidBody(object, physicsShape, mass, pos, quat) {
   const transform = new Ammo.btTransform();
   transform.setIdentity();
   transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
@@ -183,14 +231,6 @@ function createRigidBody(object, physicsShape, mass, pos, quat, vel, angVel) {
   );
   const body = new Ammo.btRigidBody(rbInfo);
   body.setFriction(0.5);
-
-  if (vel) {
-    body.setLinearVelocity(new Ammo.btVector3(vel.x, vel.y, vel.z));
-  }
-
-  if (angVel) {
-    body.setAngularVelocity(new Ammo.btVector3(angVel.x, angVel.y, angVel.z));
-  }
 
   object.userData.physicsBody = body;
   object.userData.knocked = false; // para rastrear si fue derribado
@@ -225,7 +265,7 @@ function createObjects() {
   console.log(" Suelo creado");
 
   createPins();
-  createBonusTargets(); // crear los otros objetos
+  createBonusTargets();
   createBall();
 }
 
@@ -269,7 +309,6 @@ function createPins() {
   console.log(`${pins.length} bolos creados`);
 }
 
-// NUEVA FUNCIÓN: Crear objetivos bonus giratorios
 function createBonusTargets() {
   const targetSize = 0.8;
   const targetMass = 2;
@@ -311,10 +350,9 @@ function createBonusTargets() {
   console.log("Objetivos bonus creados");
 }
 
-// Animar objetivos bonus
 function animateBonusTarget(target, index) {
   const startY = target.position.y;
-  const delay = index * 500; // Desfase entre animaciones
+  const delay = index * 500;
 
   // Levitación
   new TWEEN.Tween(target.position)
@@ -333,7 +371,6 @@ function animateBonusTarget(target, index) {
     .start();
 }
 
-// Animación cuando un bolo cae
 function animatePinKnockdown(pin) {
   if (pin.userData.knocked) return;
 
@@ -346,15 +383,6 @@ function animatePinKnockdown(pin) {
     .easing(TWEEN.Easing.Quadratic.Out)
     .start();
 
-  // Efecto de escala
-  const originalScale = { x: 1, y: 1, z: 1 };
-  new TWEEN.Tween(pin.scale)
-    .to({ x: 1.2, y: 1.2, z: 1.2 }, 200)
-    .easing(TWEEN.Easing.Elastic.Out)
-    .yoyo(true)
-    .repeat(1)
-    .start();
-
   console.log(`Bolo derribado! Total: ${pinsKnockedDown}/${pins.length}`);
 
   // STRIKE - Cuando se derriban todos los bolos
@@ -363,7 +391,6 @@ function animatePinKnockdown(pin) {
   }
 }
 
-// Animación cuando se golpea un objetivo bonus
 function animateBonusHit(target) {
   if (target.userData.bonusHit) return;
 
@@ -401,7 +428,6 @@ function animateBonusHit(target) {
   console.log("¡Objetivo bonus golpeado!");
 }
 
-// Celebración de strike
 function celebrateStrike() {
   console.log("¡¡¡STRIKE!!!");
 
@@ -410,7 +436,6 @@ function celebrateStrike() {
   strikeText.style.transform = "translate(-50%, -50%) scale(1)";
   strikeText.style.opacity = "1";
 
-  // Ocultarlo después de 2 segundos
   setTimeout(() => {
     strikeText.style.transform = "translate(-50%, -50%) scale(0)";
     strikeText.style.opacity = "0";
@@ -451,7 +476,7 @@ function createBall() {
   const ballRadius = 0.5;
   const ballMass = 5;
 
-  pos.set(0, ballRadius, 8);
+  pos.copy(ballSpawnPosition);
 
   ball = createSphereWithPhysics(
     ballRadius,
@@ -463,70 +488,65 @@ function createBall() {
   console.log(" Bola creada");
 }
 
+function launchBall(power) {
+  if (!ball || ballLaunched) return;
+
+  ballLaunched = true;
+
+  // Obtener dirección de la cámara
+  const direction = new THREE.Vector3();
+  camera.getWorldDirection(direction);
+
+  // Normalizar y aplicar potencia
+  direction.normalize();
+  direction.multiplyScalar(power);
+
+  // Aplicar velocidad
+  ball.userData.physicsBody.setLinearVelocity(
+    new Ammo.btVector3(direction.x, direction.y, direction.z)
+  );
+
+  // Activar el cuerpo rígido
+  ball.userData.physicsBody.activate();
+
+  console.log(`Bola lanzada con potencia ${power.toFixed(1)}`);
+}
+
 function resetGame() {
   console.log("Reiniciando el juego...");
 
-  // Eliminar todas las bolas lanzadas del mundo físico y escena
-  for (let i = rigidBodies.length - 1; i >= 0; i--) {
-    const objThree = rigidBodies[i];
-    const objPhys = objThree.userData.physicsBody;
-
-    physicsWorld.removeRigidBody(objPhys);
-
-    if (objThree.geometry) objThree.geometry.dispose();
-    if (objThree.material) objThree.material.dispose();
-
-    scene.remove(objThree);
-  }
-
-  // Limpiar array de rigid bodies
-  rigidBodies.length = 0;
-
-  // Eliminar bolos
-  pins.forEach((pin) => {
-    if (pin.userData.physicsBody) {
-      physicsWorld.removeRigidBody(pin.userData.physicsBody);
-    }
-    if (pin.geometry) pin.geometry.dispose();
-    if (pin.material) pin.material.dispose();
-    scene.remove(pin);
-  });
-  pins.length = 0;
-
-  // eliminar objetos bonus
-  bonusTargets.forEach((target) => {
-    if (target.userData.physicsBody) {
-      physicsWorld.removeRigidBody(target.userData.physicsBody);
-    }
-    if (target.geometry) target.geometry.dispose();
-    if (target.material) target.material.dispose();
-    scene.remove(target);
-  });
-  bonusTargets.length = 0;
-
-  // Eliminar la bola inicial
-  if (ball) {
-    if (ball.userData.physicsBody) {
-      physicsWorld.removeRigidBody(ball.userData.physicsBody);
-    }
-    if (ball.geometry) ball.geometry.dispose();
-    if (ball.material) ball.material.dispose();
-    scene.remove(ball);
-    ball = null;
-  }
-
-  // Resetear contador de bolos derribados
+  // Reset variables de estado
+  ballLaunched = false;
+  chargingPower = false;
+  currentPower = 0;
   pinsKnockedDown = 0;
+  document.getElementById("power-bar-container").style.display = "none";
+  document.getElementById("power-bar-text").style.display = "none";
 
+  // Eliminar todos los objetos dinámicos (bolos, bonus, bola)
+  for (let i = rigidBodies.length - 1; i >= 0; i--) {
+    const obj = rigidBodies[i];
+    physicsWorld.removeRigidBody(obj.userData.physicsBody);
+    if (obj.geometry) obj.geometry.dispose();
+    if (obj.material) obj.material.dispose();
+    scene.remove(obj);
+  }
+
+  // Limpiar arrays
+  rigidBodies.length = 0;
+  pins.length = 0;
+  bonusTargets.length = 0;
+  ball = null;
+
+  // Resetear visual
   scene.background.setHex(0x87ceeb);
 
-  // Resetear posición de cámara
-  camera.position.set(0, 8, 15);
-  camera.lookAt(0, 0, -5);
-  controls.target.set(0, 0, -5);
+  // Resetear cámara
+  camera.position.set(0, 10, 12);
+  controls.target.copy(ballSpawnPosition);
   controls.update();
 
-  // Recrear todos los objetos
+  // Recrear todo
   createPins();
   createBonusTargets();
   createBall();
@@ -535,48 +555,44 @@ function resetGame() {
 }
 
 function initInput() {
-  window.addEventListener("pointerdown", function (event) {
-    if (event.button !== 0) return;
+  // Detectar cuando se presiona ESPACIO
+  window.addEventListener("keydown", function (event) {
+    // Reiniciar con R
+    if (event.key === "r" || event.key === "R") {
+      resetGame();
+      return;
+    }
 
-    mouseCoords.set(
-      (event.clientX / window.innerWidth) * 2 - 1,
-      -(event.clientY / window.innerHeight) * 2 + 1
-    );
+    // Lanzar con ESPACIO
+    if (event.code === "Space" && !ballLaunched && ball) {
+      if (!chargingPower) {
+        chargingPower = true;
+        currentPower = minPower;
 
-    raycaster.setFromCamera(mouseCoords, camera);
-
-    const ballMass = 5;
-    const ballRadius = 0.5;
-    const newBall = new THREE.Mesh(
-      new THREE.SphereGeometry(ballRadius, 32, 32),
-      new THREE.MeshPhongMaterial({ color: 0x2020ff })
-    );
-    newBall.castShadow = true;
-    newBall.receiveShadow = true;
-
-    const ballShape = new Ammo.btSphereShape(ballRadius);
-    ballShape.setMargin(margin);
-
-    pos.copy(raycaster.ray.direction);
-    pos.add(raycaster.ray.origin);
-
-    quat.set(0, 0, 0, 1);
-
-    const velocity = new THREE.Vector3();
-    velocity.copy(raycaster.ray.direction);
-    velocity.multiplyScalar(30);
-
-    createRigidBody(newBall, ballShape, ballMass, pos, quat, velocity);
-
-    // NUEVO: Event listener para tecla R
-    window.addEventListener("keydown", function (event) {
-      if (event.key === "r" || event.key === "R") {
-        resetGame();
+        // Mostrar barra de potencia
+        document.getElementById("power-bar-container").style.display = "block";
+        document.getElementById("power-bar-text").style.display = "block";
       }
-    });
+    }
   });
 
-  console.log("Controles de ratón inicializados");
+  // Detectar cuando se suelta ESPACIO
+  window.addEventListener("keyup", function (event) {
+    if (event.code === "Space" && chargingPower) {
+      chargingPower = false;
+
+      // Ocultar barra de potencia
+      document.getElementById("power-bar-container").style.display = "none";
+      document.getElementById("power-bar-text").style.display = "none";
+
+      // Lanzar la bola
+      launchBall(currentPower);
+
+      currentPower = 0;
+    }
+  });
+
+  console.log("Controles de teclado inicializados");
 }
 
 function animate() {
@@ -585,6 +601,7 @@ function animate() {
   const deltaTime = clock.getDelta();
   updatePhysics(deltaTime);
   TWEEN.update();
+  updatePowerBar(deltaTime);
   controls.update();
   renderer.render(scene, camera);
 }
@@ -622,6 +639,75 @@ function updatePhysics(deltaTime) {
           animateBonusHit(objThree);
         }
       }
+
+      if (objThree === ball && ballLaunched) {
+        const velocity = objPhys.getLinearVelocity();
+        const speed = Math.sqrt(
+          velocity.x() * velocity.x() +
+            velocity.y() * velocity.y() +
+            velocity.z() * velocity.z()
+        );
+
+        if (speed < 0.1 || objThree.position.y < -2) {
+          respawnBall();
+        }
+      }
+    }
+  }
+}
+
+function respawnBall() {
+  if (!ball) return;
+
+  console.log("Reapareciendo bola...");
+
+  ballLaunched = false;
+
+  const index = rigidBodies.indexOf(ball);
+  if (index > -1) {
+    rigidBodies.splice(index, 1);
+  }
+
+  physicsWorld.removeRigidBody(ball.userData.physicsBody);
+
+  // Liberar memoria
+  if (ball.geometry) ball.geometry.dispose();
+  if (ball.material) ball.material.dispose();
+
+  scene.remove(ball);
+
+  createBall();
+
+  ball.scale.set(0.1, 0.1, 0.1);
+  new TWEEN.Tween(ball.scale)
+    .to({ x: 1, y: 1, z: 1 }, 300)
+    .easing(TWEEN.Easing.Back.Out)
+    .start();
+}
+
+function updatePowerBar(deltaTime) {
+  if (chargingPower) {
+    // Incrementar potencia
+    currentPower += chargeSpeed * deltaTime;
+
+    // Limitar al máximo
+    if (currentPower > maxPower) {
+      currentPower = maxPower;
+    }
+
+    // Actualizar barra visual
+    const percentage =
+      ((currentPower - minPower) / (maxPower - minPower)) * 100;
+    const powerBarFill = document.getElementById("power-bar-fill");
+    powerBarFill.style.width = percentage + "%";
+
+    // Cambiar color según potencia
+    if (percentage < 33) {
+      powerBarFill.style.backgroundColor = "#00ff00"; // Verde
+    } else if (percentage < 66) {
+      powerBarFill.style.backgroundColor = "#ffff00"; // Amarillo
+    } else {
+      powerBarFill.style.backgroundColor = "#ff0000"; // Rojo
     }
   }
 }
