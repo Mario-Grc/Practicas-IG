@@ -4,7 +4,7 @@ Un juego de bolos interactivo en 3D desarrollado con Three.js y física realista
 
 ## Video de demostración
 
-[Video](S11/JuegoBolosDemo.mp4)
+[Video](JuegoBolosDemo.mp4)
 
 ## Descripción
 
