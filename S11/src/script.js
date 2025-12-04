@@ -46,7 +46,7 @@ function start() {
 // Crear el título con mi nombre
 const title = document.createElement("div");
 title.id = "game-title";
-title.innerText = "Mario García Abellán";
+title.innerText = "Mario García Abellán \n (Pulsa r para reiniciar)";
 title.style.position = "fixed";
 title.style.top = "10px";
 title.style.left = "50%";
