@@ -3,6 +3,8 @@ Proyecto interactivo en three.js que muestra un mapa de Canarias con informació
 
 Video demostración: [Mapa-demo-Mario.mp4](Mapa-demo-Mario.mp4)
 
+<img src="mapa-canarias.png" alt="Mapa de Canarias" width="800">
+
 ## Descripción
 La aplicación carga un mapa de Canarias en 3D sobre el que se colocan esferas que representan cada municipio, utilizando un sistema de coordenadas basado en latitud y longitud reales.
 

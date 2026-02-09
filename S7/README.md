@@ -3,6 +3,8 @@ Simulación 3D interactiva de nuestro sistema solar simplificado, creada con **t
 
 Enlace al [vídeo de demostración](https://youtu.be/tnRteZtXArU).
 
+<img src="sistema-solar.png" alt="Captura de pantalla del sistema solar" width="800">
+
 ## Descripción
 Este proyecto renderiza una escena 3D que representa una estrella central (Sol) y varios planetas orbitando a su alrededor (incluyendo Mercurio, Venus, Tierra, Marte, Júpiter, Saturno, Urano y Neptuno). También incluye la Luna orbitando la Tierra. Para crear el fondo estrellado, se ha generado un campo con miles de puntos distribuidos esféricamente alrededor del sistema solar para dar la sensación de estrellas lejanas.
 
