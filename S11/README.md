@@ -2,9 +2,13 @@
 
 Un juego de bolos interactivo en 3D desarrollado con Three.js y física realista usando Ammo.js. Este proyecto ha sido desarrollado en [CodeSandbox](https://codesandbox.io/p/sandbox/entrega-s10-ig2526-cxn26t).
 
-## Video de demostración
+## Demostración
 
-[Video](JuegoBolosDemo.mp4)
+<p align="center">
+  <img src="bolosgif.gif" width="800" alt="Demo">
+</p>
+
+[Video con más calidad](JuegoBolosDemo.mp4)
 
 ## Descripción
 
